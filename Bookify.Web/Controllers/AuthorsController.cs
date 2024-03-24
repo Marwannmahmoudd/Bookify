@@ -1,5 +1,8 @@
-﻿namespace Bookify.Web.Controllers
+﻿using System.Security.Claims;
+
+namespace Bookify.Web.Controllers
 {
+    [Authorize(Roles =AppRoles.Archive)]
     public class AuthorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -36,6 +39,7 @@
                 return BadRequest();
 
             var author = _mapper.Map<Author>(model);
+            author.CreatedById =  User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             _context.Add(author);
             _context.SaveChanges();
 
@@ -71,6 +75,7 @@
                 return NotFound();
 
             author = _mapper.Map(model, author);
+            author.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             author.LastUpdatedOn = DateTime.Now;
 
             _context.SaveChanges();

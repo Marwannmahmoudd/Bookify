@@ -6,6 +6,7 @@
 
         [MaxLength(100, ErrorMessage = Errors.MaxLength), Display(Name = "Author")]
         [Remote("AllowItem", null!, AdditionalFields = "Id", ErrorMessage = Errors.Duplicated)]
+        [RegularExpression(RegexPatterns.DenySpecialCharacters, ErrorMessage = Errors.DenySpecialCharacters)]
         public string Name { get; set; } = null!;
     }
 }

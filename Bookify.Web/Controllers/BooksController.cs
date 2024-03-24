@@ -10,6 +10,7 @@ using System.Linq.Dynamic.Core;
 
 namespace Bookify.Web.Controllers
 {
+    [Authorize(Roles = AppRoles.Archive)]
     public class BooksController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -154,7 +155,7 @@ namespace Bookify.Web.Controllers
                 //book.ImageThumbnailUrl = GetThumbnailUrl(book.ImageUrl);
                 //book.ImagePublicId = result.PublicId;
             }
-
+            book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             foreach (var category in model.SelectedCategories)
                 book.Categories.Add(new BookCategory { CategoryId = category });
 
@@ -186,7 +187,9 @@ namespace Bookify.Web.Controllers
             if (!ModelState.IsValid)
                 return View("Form", PopulateViewModel(model));
 
-            var book = _context.Books.Include(b => b.Categories).SingleOrDefault(b => b.Id == model.Id);
+            var book = _context.Books.Include(b => b.Categories)
+                .Include(b => b.Copies)
+                .SingleOrDefault(b => b.Id == model.Id);
 
             if (book is null)
                 return NotFound();
@@ -241,18 +244,6 @@ namespace Bookify.Web.Controllers
                 image.Mutate(i => i.Resize(width: 200, height: (int)height));
                 image.Save(thumbPath);
 
-                //using var straem = model.Image.OpenReadStream();
-
-                //var imageParams = new ImageUploadParams
-                //{
-                //    File = new FileDescription(imageName, straem),
-                //    UseFilename = true
-                //};
-
-                //var result = await _cloudinary.UploadAsync(imageParams);
-
-                //model.ImageUrl = result.SecureUrl.ToString();
-                //imagePublicId = result.PublicId;
             }
 
             else if (!string.IsNullOrEmpty(book.ImageUrl))
@@ -262,11 +253,15 @@ namespace Bookify.Web.Controllers
             }
 
             book = _mapper.Map(model, book);
+            book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             book.LastUpdatedOn = DateTime.Now;
-            //book.ImageThumbnailUrl = GetThumbnailUrl(book.ImageUrl!);
-            //book.ImagePublicId = imagePublicId;
 
-            foreach (var category in model.SelectedCategories)
+
+            if (!model.IsAvailableForRental)           
+                foreach (var item in book.Copies)
+                    item.IsAvailableForRental = false;          
+                          
+                foreach (var category in model.SelectedCategories)
                 book.Categories.Add(new BookCategory { CategoryId = category });
 
             _context.SaveChanges();
