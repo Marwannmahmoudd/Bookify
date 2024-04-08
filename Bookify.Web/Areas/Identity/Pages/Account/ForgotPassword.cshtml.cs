@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Bookify.Web.Services;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account
 {
@@ -21,12 +22,14 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+		private readonly IEmailBodyBuilder _emailBodyBuilder;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+		public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender , IEmailBodyBuilder emailBodyBuilder)
         {
             _userManager = userManager;
             _emailSender = emailSender;
-        }
+			_emailBodyBuilder = emailBodyBuilder;
+		}
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -70,11 +73,16 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                     pageHandler: null,
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
-
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+			
+				var body = _emailBodyBuilder.GetEmailBody(
+		"https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png",
+				$"Hey {user.FullName}, thanks for joining us!",
+				"Please click the bellow button to reset your password ",
+				$"{HtmlEncoder.Default.Encode(callbackUrl!)}",
+				"Reset Password"
+			);
+				await _emailSender.SendEmailAsync(user.Email, "Reset Password", body);
+	
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

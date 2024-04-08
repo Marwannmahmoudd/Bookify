@@ -8,11 +8,13 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Bookify.Web.Core.Models;
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -21,21 +23,26 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
         public EmailModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IEmailBodyBuilder emailBodyBuilder)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _emailBodyBuilder = emailBodyBuilder;
         }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// 
+      
         public string Email { get; set; }
 
         /// <summary>
@@ -73,6 +80,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             [Display(Name = "New email")]
             public string NewEmail { get; set; }
         }
+     
 
         private async Task LoadAsync(ApplicationUser user)
         {
@@ -99,6 +107,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
+
         public async Task<IActionResult> OnPostChangeEmailAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -114,7 +123,12 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             }
 
             var email = await _userManager.GetEmailAsync(user);
-            if (Input.NewEmail != email)
+            if(_userManager.Users.Any(u => u.NormalizedEmail == Input.NewEmail.ToUpper()))
+            {
+                StatusMessage = "Please Change Your Input Email";
+                return RedirectToPage();
+            }
+            if (Input.NewEmail != email  )
             {
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
@@ -124,10 +138,19 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                     pageHandler: null,
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
+
+                var body = _emailBodyBuilder.GetEmailBody(
+                "https://res.cloudinary.com/dagpvgkuc/image/upload/v1711847027/icon-positive-vote-1_vktxt1_ar0aqr.png",
+                        $"Hey {user.FullName},",
+                        "please confirm your email",
+                        $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
+                        "Confirm Email"
+                );
+
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
                     "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    body);
 
                 StatusMessage = "Confirmation link to change email sent. Please check your email.";
                 return RedirectToPage();
@@ -160,10 +183,19 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
+
+            var body = _emailBodyBuilder.GetEmailBody(
+                "https://res.cloudinary.com/devcreed/image/upload/v1668732314/icon-positive-vote-1_rdexez.svg",
+                        $"Hey {user.FullName},",
+                        "please confirm your email",
+                        $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
+                        "Confirm Email"
+                );
+
             await _emailSender.SendEmailAsync(
                 email,
                 "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                body);
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();

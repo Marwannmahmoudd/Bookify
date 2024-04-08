@@ -19,16 +19,16 @@ namespace Bookify.Web.Core.ViewModels
         [MaxLength(200, ErrorMessage = Errors.MaxLength), EmailAddress]
         [Remote("AllowEmail", null!, AdditionalFields = "Id", ErrorMessage = Errors.Duplicated)]
         public string Email { get; set; } = null!;
-
+      
         [DataType(DataType.Password),
             StringLength(100, ErrorMessage = Errors.MaxMinLength, MinimumLength = 8),
         RegularExpression(RegexPatterns.Password, ErrorMessage = Errors.WeakPassword)]
-        //[RequiredIf("Id == null", ErrorMessage = Errors.RequiredField)]
+        [RequiredIf("Id == null", ErrorMessage = Errors.RequiredField)]
         public string? Password { get; set; } = null!;
 
         [DataType(DataType.Password), Display(Name = "Confirm password"),
             Compare("Password", ErrorMessage = Errors.ConfirmPasswordNotMatch)]
-        //[RequiredIf("Id == null", ErrorMessage = Errors.RequiredField)]
+        [RequiredIf("Id == null", ErrorMessage = Errors.RequiredField)]
         public string? ConfirmPassword { get; set; } = null!;
 
         [Display(Name = "Roles")]
