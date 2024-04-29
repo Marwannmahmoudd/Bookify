@@ -10,6 +10,11 @@ using Bookify.Web.Helpers;
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.DataProtection;
+using Hangfire;
+using Hangfire.Dashboard;
+using Bookify.Web.Tasks;
+using HashidsNet;
+using ViewToHTML.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,11 +35,21 @@ builder.Services.AddIdentity<ApplicationUser,IdentityRole>(options => options.Si
     .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDataProtection().SetApplicationName(nameof(Bookify));
+builder.Services.AddSingleton<IHashids>(_ => new Hashids("f1nd1ngn3m0", minHashLength: 11));
+
 builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MappingProfile)));
 builder.Services.Configure<CloudinarySetting>(builder.Configuration.GetSection(nameof(CloudinarySetting)));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 builder.Services.AddExpressiveAnnotations();
+builder.Services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
+builder.Services.AddHangfireServer();
 
+builder.Services.Configure<AuthorizationOptions>(options => options.AddPolicy("AdminsOnly", policy =>
+{
+    policy.RequireAuthenticatedUser();
+    policy.RequireRole(AppRoles.Admin);
+}));
+builder.Services.AddViewToHTML();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,9 +79,31 @@ var roleManger = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRo
 var userManger = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 await DefaultRoles.SeedAsync(roleManger);
 await DefaultUsers.SeedAdminUserAsync(userManger);
+
+app.UseHangfireDashboard("/hangfire" , new DashboardOptions
+{
+	DashboardTitle = "Bookify Dashboard",
+    //IsReadOnlyFunc = (DashboardContext context) => true,
+    Authorization = new IDashboardAuthorizationFilter[]
+	{
+		new HangfireAuthorizationFilter("AdminsOnly")
+	}
+});
+
+var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+var emailBodyBuilder = scope.ServiceProvider.GetRequiredService<IEmailBodyBuilder>();
+var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+var hangfireTasks = new HangfireTasks(dbContext, webHostEnvironment,
+	emailBodyBuilder, emailSender);
+
+RecurringJob.AddOrUpdate(() => hangfireTasks.PrepareExpirationAlert(),  "0 14 * * *");
+
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();

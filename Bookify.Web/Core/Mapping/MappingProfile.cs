@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Bookify.Web.Core.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bookify.Web.Core.Mapping
 {
@@ -31,7 +32,9 @@ namespace Bookify.Web.Core.Mapping
                     opt => opt.MapFrom(src => src.Categories.Select(c => c.Category!.Name).ToList()));
 
             CreateMap<BookCopy, BookCopyViewModel>()
-                .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title));
+                .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title))
+            .ForMember(dest => dest.BookId, opt => opt.MapFrom(src => src.Book!.Id))
+            .ForMember(dest => dest.BookThumbnailUrl, opt => opt.MapFrom(src => src.Book!.ImageThumbnailUrl));
 
             CreateMap<BookCopy, BookCopyFormViewModel>();
             CreateMap<ApplicationUser, UserViewModel>();
@@ -58,6 +61,15 @@ namespace Bookify.Web.Core.Mapping
 			  .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
 			  .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
 			  .ForMember(dest => dest.Governorate, opt => opt.MapFrom(src => src.Governorate!.Name));
-		}
+
+			CreateMap<Subscribtion, SubscriptionViewModel>();
+
+			//Rentals
+			CreateMap<Rental, RentalViewModel>();
+			CreateMap<RentalCopy, RentalCopyViewModel>();
+            CreateMap<RentalCopy, CopyHistoryViewModel>()
+        .ForMember(dest => dest.SubscriberMobile, opt => opt.MapFrom(src => src.Rental!.Subscriber!.MobileNumber))
+        .ForMember(dest => dest.SubscriberName, opt => opt.MapFrom(src => $"{src.Rental!.Subscriber!.FirstName} {src.Rental!.Subscriber!.LastName}"));
+        }
     }
 }

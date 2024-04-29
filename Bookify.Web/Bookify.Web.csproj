@@ -9,7 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
     <PackageReference Include="CloudinaryDotNet" Version="1.20.0" />
+    <PackageReference Include="Hangfire" Version="1.8.12" />
+    <PackageReference Include="Hashids.net" Version="1.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.27" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.27" />
@@ -19,9 +22,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+    <PackageReference Include="OpenHtmlToPdf.netcore" Version="1.13.0" />
     <PackageReference Include="SixLabors.ImageSharp.Web" Version="2.0.2" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.20" />
     <PackageReference Include="UoN.ExpressiveAnnotations.NetCore" Version="1.0.0" />
+    <PackageReference Include="ViewToHTML" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Home\Index.cshtml" />
     <None Include="wwwroot\assets\images\401.svg" />
     <None Include="wwwroot\assets\images\avatar-blank.svg" />
     <None Include="wwwroot\assets\images\login.svg" />

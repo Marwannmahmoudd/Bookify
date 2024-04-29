@@ -39,6 +39,28 @@
     {
       "library": "expressive-annotations-validate@2.7.0",
       "destination": "wwwroot/lib/expressive-annotations-validate/"
+    },
+    {
+      "library": "apexcharts@3.49.0",
+      "destination": "wwwroot/apexcharts/",
+      "files": [
+        "apexcharts.min.js",
+        "apexcharts.min.css"
+      ]
+    },
+    {
+      "library": "typeahead.js@0.11.1",
+      "destination": "wwwroot/typeahead.js/",
+      "files": [
+        "typeahead.bundle.min.js"
+      ]
+    },
+    {
+      "library": "handlebars.js@4.7.8",
+      "destination": "wwwroot/handlebars.js/",
+      "files": [
+        "handlebars.min.js"
+      ]
     }
   ]
 }

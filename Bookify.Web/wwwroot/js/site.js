@@ -15,7 +15,6 @@ function showSuccessMessage(message = 'Saved successfully!') {
 }
 
 function showErrorMessage(message = 'Something went wrong!') {
-    console.log(message)
     Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -26,12 +25,12 @@ function showErrorMessage(message = 'Something went wrong!') {
     });
 }
 
-function disableSubmitButton() {
-    $('body :submit').attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
+function disableSubmitButton(btn) {
+    $(btn).attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
 }
 
 function onModalBegin() {
-    disableSubmitButton();
+    disableSubmitButton($('#Modal').find(':submit'));
 }
 
 function onModalSuccess(row) {
@@ -46,15 +45,17 @@ function onModalSuccess(row) {
     var newRow = $(row);
     datatable.row.add(newRow).draw();
 }
-//select2
+
+function onModalComplete() {
+    $('body :submit').removeAttr('disabled').removeAttr('data-kt-indicator');
+}
+
+//Select2
 function applySelect2() {
     $('.js-select2').select2();
     $('.js-select2').on('select2:select', function (e) {
-        $('form').not("#SignOut").validate().element('#' + $(this).attr('id'));
+        $('form').not('#SignOut').validate().element('#' + $(this).attr('id'));
     });
-}
-function onModalComplete() {
-    $('body :submit').removeAttr('disabled').removeAttr('data-kt-indicator');
 }
 
 //DataTables
@@ -109,6 +110,17 @@ var KTDatatables = function () {
                     title: documentTitle,
                     exportOptions: {
                         columns: exportedCols
+                    },
+                    customize: function (doc) {
+                        pdfMake.fonts = {
+                            Arial: {
+                                normal: 'arial',
+                                bold: 'arial',
+                                italics: 'arial',
+                                bolditalics: 'arial'
+                            }
+                        }
+                        doc.defaultStyle.font = 'Arial';
                     }
                 }
             ]
@@ -156,7 +168,7 @@ var KTDatatables = function () {
 
 $(document).ready(function () {
     //Disable submit button
-    $('form').not("#SignOut").on('submit', function () {
+    $('form').not('#SignOut').on('submit', function () {
         if ($('.js-tinymce').length > 0) {
             $('.js-tinymce').each(function () {
                 var input = $(this);
@@ -167,7 +179,7 @@ $(document).ready(function () {
         }
 
         var isValid = $(this).valid();
-        if (isValid) disableSubmitButton(); 
+        if (isValid) disableSubmitButton($(this).find(':submit')); 
     });
 
     //TinyMCE
@@ -183,7 +195,7 @@ $(document).ready(function () {
     }
 
     //Select2
-    applySelect2()
+    applySelect2();
 
     //Datepicker
     $('.js-datepicker').daterangepicker({
@@ -220,7 +232,7 @@ $(document).ready(function () {
             success: function (form) {
                 modal.find('.modal-body').html(form);
                 $.validator.unobtrusive.parse(modal);
-                applySelect2()
+                applySelect2();
             },
             error: function () {
                 showErrorMessage();
@@ -307,7 +319,8 @@ $(document).ready(function () {
         });
     });
 
-    $(".js-signout").on("click", function () {
-        $("#SignOut").submit();
-    })
+    //Hanlde signout
+    $('.js-signout').on('click', function () {
+        $('#SignOut').submit();
+    });
 });

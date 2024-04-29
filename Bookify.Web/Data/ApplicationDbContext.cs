@@ -18,7 +18,10 @@ namespace Bookify.Web.Data
         public DbSet<Category> Categories { get; set; }
        
         public DbSet<Governorate> Governorates { get; set; }
-        public DbSet<Subscriber> Subscribers { get; set; }
+		public DbSet<Rental> Rentals { get; set; }
+		public DbSet<RentalCopy> RentalCopies { get; set; }
+		public DbSet<Subscriber> Subscribers { get; set; }
+        public DbSet<Subscribtion> Subscribtions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasSequence<int>("SerialNumber", schema: "shared")
@@ -34,6 +37,9 @@ namespace Bookify.Web.Data
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
 
             builder.Entity<BookCategory>().HasKey(e => new { e.BookId, e.CategoryId });
+			builder.Entity<RentalCopy>().HasKey(e => new { e.RentalId, e.BookCopyId });
+            builder.Entity<Rental>().HasQueryFilter(e => !e.IsDeleted);
+            builder.Entity<RentalCopy>().HasQueryFilter(e => !e.Rental!.IsDeleted);
 
             var cascadFk = builder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())
