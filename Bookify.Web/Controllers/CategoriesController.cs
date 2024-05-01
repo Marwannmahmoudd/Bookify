@@ -30,14 +30,14 @@
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Create(CategoryFormViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
             var category = _mapper.Map<Category>(model);
-            category.CreatedById= User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            category.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             _context.Add(category);
             _context.SaveChanges();
 
@@ -61,7 +61,7 @@
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Edit(CategoryFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -84,7 +84,7 @@
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult ToggleStatus(int id)
         {
             var category = _context.Categories.Find(id);

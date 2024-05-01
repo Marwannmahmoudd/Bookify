@@ -1,7 +1,7 @@
 ﻿namespace Bookify.Web.Core.ViewModels
 {
-	public class RentalFormViewModel
-	{
+    public class RentalFormViewModel
+    {
         public int? Id { get; set; }
 
         public string SubscriberKey { get; set; } = null!;

@@ -2,19 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Bookify.Web.Core.Models;
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Bookify.Web.Services;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account
 {
@@ -22,14 +16,14 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-		private readonly IEmailBodyBuilder _emailBodyBuilder;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
-		public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender , IEmailBodyBuilder emailBodyBuilder)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder)
         {
             _userManager = userManager;
             _emailSender = emailSender;
-			_emailBodyBuilder = emailBodyBuilder;
-		}
+            _emailBodyBuilder = emailBodyBuilder;
+        }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -73,17 +67,17 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                     pageHandler: null,
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
-				var placeholders = new Dictionary<string, string>()
-				{
-					{ "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
-					{ "header", $"Hey {user.FullName}," },
-					{ "body", "please click the below button to reset you password" },
-					{ "url", $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
-					{ "linkTitle", "Reset Password" }
-				};
-				var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email,placeholders);
-				await _emailSender.SendEmailAsync(user.Email, "Reset Password", body);
-	
+                var placeholders = new Dictionary<string, string>()
+                {
+                    { "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
+                    { "header", $"Hey {user.FullName}," },
+                    { "body", "please click the below button to reset you password" },
+                    { "url", $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                    { "linkTitle", "Reset Password" }
+                };
+                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
+                await _emailSender.SendEmailAsync(user.Email, "Reset Password", body);
+
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

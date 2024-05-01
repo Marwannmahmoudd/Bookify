@@ -2,18 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Bookify.Web.Core.Models;
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
+using System.Text.Encodings.Web;
 
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
@@ -42,7 +37,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// 
-      
+
         public string Email { get; set; }
 
         /// <summary>
@@ -80,7 +75,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             [Display(Name = "New email")]
             public string NewEmail { get; set; }
         }
-     
+
 
         private async Task LoadAsync(ApplicationUser user)
         {
@@ -123,12 +118,12 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             }
 
             var email = await _userManager.GetEmailAsync(user);
-            if(_userManager.Users.Any(u => u.NormalizedEmail == Input.NewEmail.ToUpper()))
+            if (_userManager.Users.Any(u => u.NormalizedEmail == Input.NewEmail.ToUpper()))
             {
                 StatusMessage = "Please Change Your Input Email";
                 return RedirectToPage();
             }
-            if (Input.NewEmail != email  )
+            if (Input.NewEmail != email)
             {
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
@@ -138,16 +133,16 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                     pageHandler: null,
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
-				var placeholders = new Dictionary<string, string>()
-				{
-					{ "imageUrl",  "https://res.cloudinary.com/dagpvgkuc/image/upload/v1711847027/icon-positive-vote-1_vktxt1_ar0aqr.png" },
-					{ "header",  $"Hey {user.FullName}," },
-					{ "body", "please confirm your email" },
-					{ "url",  $"{HtmlEncoder.Default.Encode(callbackUrl!)}"},
-					{ "linkTitle", "Confirm Email" }
-				};
-				var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
-		
+                var placeholders = new Dictionary<string, string>()
+                {
+                    { "imageUrl",  "https://res.cloudinary.com/dagpvgkuc/image/upload/v1711847027/icon-positive-vote-1_vktxt1_ar0aqr.png" },
+                    { "header",  $"Hey {user.FullName}," },
+                    { "body", "please confirm your email" },
+                    { "url",  $"{HtmlEncoder.Default.Encode(callbackUrl!)}"},
+                    { "linkTitle", "Confirm Email" }
+                };
+                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
+
 
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
@@ -185,15 +180,15 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
-			var placeholders = new Dictionary<string, string>()
-				{
-					{ "imageUrl",  "https://res.cloudinary.com/devcreed/image/upload/v1668732314/icon-positive-vote-1_rdexez.svg" },
-					{ "header", $"Hey {user.FullName}," },
-					{ "body",  "please confirm your email" },
-					{ "url", $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
-					{ "linkTitle", "Confirm Email" }
-				};
-			var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
+            var placeholders = new Dictionary<string, string>()
+                {
+                    { "imageUrl",  "https://res.cloudinary.com/devcreed/image/upload/v1668732314/icon-positive-vote-1_rdexez.svg" },
+                    { "header", $"Hey {user.FullName}," },
+                    { "body",  "please confirm your email" },
+                    { "url", $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                    { "linkTitle", "Confirm Email" }
+                };
+            var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
             await _emailSender.SendEmailAsync(
                 email,
                 "Confirm your email",

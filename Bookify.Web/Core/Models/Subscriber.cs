@@ -1,10 +1,10 @@
 ﻿namespace Bookify.Web.Core.Models
 {
 
-    [Index(nameof(NationalId),IsUnique =true)]
+    [Index(nameof(NationalId), IsUnique = true)]
     [Index(nameof(MobileNumber), IsUnique = true)]
     [Index(nameof(Email), IsUnique = true)]
-    public class Subscriber :BaseModel
+    public class Subscriber : BaseModel
     {
         public int Id { get; set; }
 
@@ -46,6 +46,6 @@
 
         public bool IsBlackListed { get; set; }
         public ICollection<Subscribtion> Subscribtions { get; set; } = new List<Subscribtion>();
-		public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
-	}
+        public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
+    }
 }

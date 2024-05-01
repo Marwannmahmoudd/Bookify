@@ -8,18 +8,18 @@ namespace Bookify.Web.Core.ViewModels
         public string? Id { get; set; }
 
         [MaxLength(100, ErrorMessage = Errors.MaxLength), Display(Name = "Full Name")]
-        [RegularExpression(RegexPatterns.DenySpecialCharacters,ErrorMessage = Errors.DenySpecialCharacters)] 
+        [RegularExpression(RegexPatterns.DenySpecialCharacters, ErrorMessage = Errors.DenySpecialCharacters)]
         public string FullName { get; set; } = null!;
 
         [MaxLength(20, ErrorMessage = Errors.MaxLength), Display(Name = "Username")]
         [Remote("AllowUserName", null!, AdditionalFields = "Id", ErrorMessage = Errors.Duplicated)]
-        [RegularExpression(RegexPatterns.Username,ErrorMessage =Errors.InvalidUsername)]
+        [RegularExpression(RegexPatterns.Username, ErrorMessage = Errors.InvalidUsername)]
         public string UserName { get; set; } = null!;
 
         [MaxLength(200, ErrorMessage = Errors.MaxLength), EmailAddress]
         [Remote("AllowEmail", null!, AdditionalFields = "Id", ErrorMessage = Errors.Duplicated)]
         public string Email { get; set; } = null!;
-      
+
         [DataType(DataType.Password),
             StringLength(100, ErrorMessage = Errors.MaxMinLength, MinimumLength = 8),
         RegularExpression(RegexPatterns.Password, ErrorMessage = Errors.WeakPassword)]

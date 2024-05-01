@@ -1,5 +1,4 @@
-﻿using Bookify.Web.Core.Models;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 namespace Bookify.Web.Services
 {
@@ -11,11 +10,11 @@ namespace Bookify.Web.Services
         public ImageService(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
-    }
+        }
 
-     
 
-        public async Task<(bool isUploaded, string? errorMessage )> UploadAsync(IFormFile image,string imageName, string folderPath, bool hasThumbnail)
+
+        public async Task<(bool isUploaded, string? errorMessage)> UploadAsync(IFormFile image, string imageName, string folderPath, bool hasThumbnail)
         {
             var extension = Path.GetExtension(image.FileName);
 
@@ -29,10 +28,10 @@ namespace Bookify.Web.Services
                 return (isUploaded: false, errorMessage: Errors.MaxSize);
             }
 
-        
+
 
             var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{folderPath}", imageName);
-          
+
 
             using var stream = File.Create(path);
             await image.CopyToAsync(stream);
@@ -46,13 +45,13 @@ namespace Bookify.Web.Services
                 var height = imageUploaded.Height / ratio;
                 imageUploaded.Mutate(i => i.Resize(width: 200, height: (int)height));
                 imageUploaded.Save(thumbPath);
-            }   
-            return (isUploaded: true, errorMessage: null );
+            }
+            return (isUploaded: true, errorMessage: null);
         }
         public void Delete(string imagePath, string? imageThumbnailPath = null)
         {
             var oldImagePath = $"{_webHostEnvironment.WebRootPath}{imagePath}";
-           
+
 
             if (File.Exists(oldImagePath))
                 File.Delete(oldImagePath);
@@ -62,7 +61,7 @@ namespace Bookify.Web.Services
                 if (File.Exists(oldThumbPath))
                     File.Delete(oldThumbPath);
             }
-           
+
         }
     }
 }

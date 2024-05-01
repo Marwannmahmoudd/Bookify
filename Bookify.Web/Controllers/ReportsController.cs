@@ -1,12 +1,9 @@
-﻿using Bookify.Web.Core.Models;
-using Bookify.Web.Extensions;
+﻿using Bookify.Web.Extensions;
 using ClosedXML.Excel;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OpenHtmlToPdf;
 using System.Net.Mime;
 using ViewToHTML.Services;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Bookify.Web.Controllers
 {
@@ -307,7 +304,7 @@ namespace Bookify.Web.Controllers
             using var workbook = new XLWorkbook();
 
             var sheet = workbook.AddWorksheet("Delayed Rentals");
-            
+
             sheet.AddLocalImage(_logoPath);
 
             var headerCells = new string[] { "Subscriber ID", "Subscriber Name", "Subscriber Phone", "Book Title",

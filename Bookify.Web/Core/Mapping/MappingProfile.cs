@@ -1,5 +1,4 @@
-﻿using Bookify.Web.Core.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bookify.Web.Core.Mapping
 {
@@ -28,7 +27,7 @@ namespace Bookify.Web.Core.Mapping
 
             CreateMap<Book, BookViewModel>()
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author!.Name))
-                .ForMember(dest => dest.Categories, 
+                .ForMember(dest => dest.Categories,
                     opt => opt.MapFrom(src => src.Categories.Select(c => c.Category!.Name).ToList()));
 
             CreateMap<BookCopy, BookCopyViewModel>()
@@ -57,16 +56,16 @@ namespace Bookify.Web.Core.Mapping
 
             CreateMap<Subscriber, SubscriberSearchResultViewModel>()
                             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
-			CreateMap<Subscriber, SubscriberViewModel>()
-			  .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-			  .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
-			  .ForMember(dest => dest.Governorate, opt => opt.MapFrom(src => src.Governorate!.Name));
+            CreateMap<Subscriber, SubscriberViewModel>()
+              .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+              .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
+              .ForMember(dest => dest.Governorate, opt => opt.MapFrom(src => src.Governorate!.Name));
 
-			CreateMap<Subscribtion, SubscriptionViewModel>();
+            CreateMap<Subscribtion, SubscriptionViewModel>();
 
-			//Rentals
-			CreateMap<Rental, RentalViewModel>();
-			CreateMap<RentalCopy, RentalCopyViewModel>();
+            //Rentals
+            CreateMap<Rental, RentalViewModel>();
+            CreateMap<RentalCopy, RentalCopyViewModel>();
             CreateMap<RentalCopy, CopyHistoryViewModel>()
         .ForMember(dest => dest.SubscriberMobile, opt => opt.MapFrom(src => src.Rental!.Subscriber!.MobileNumber))
         .ForMember(dest => dest.SubscriberName, opt => opt.MapFrom(src => $"{src.Rental!.Subscriber!.FirstName} {src.Rental!.Subscriber!.LastName}"));

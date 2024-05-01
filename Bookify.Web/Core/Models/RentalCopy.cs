@@ -1,6 +1,4 @@
-﻿using Bookify.Web.Core.Enums;
-
-namespace Bookify.Web.Core.Models
+﻿namespace Bookify.Web.Core.Models
 {
     public class RentalCopy
     {

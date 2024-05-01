@@ -1,12 +1,8 @@
-﻿using Bookify.Web.Filters;
-using Bookify.Web.Services;
+﻿using Bookify.Web.Services;
 using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using System.Linq;
 using System.Linq.Dynamic.Core;
 
 namespace Bookify.Web.Controllers
@@ -23,7 +19,7 @@ namespace Bookify.Web.Controllers
         public IImageService _ImageService { get; }
 
         public BooksController(ApplicationDbContext context, IMapper mapper,
-            IWebHostEnvironment webHostEnvironment, IOptions<CloudinarySetting> cloudinary , IImageService imageService)
+            IWebHostEnvironment webHostEnvironment, IOptions<CloudinarySetting> cloudinary, IImageService imageService)
         {
             _context = context;
             _mapper = mapper;
@@ -45,6 +41,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public IActionResult GetBooks()
         {
             var skip = int.Parse(Request.Form["start"]);
@@ -61,7 +58,7 @@ namespace Bookify.Web.Controllers
                 .Include(b => b.Categories)
                 .ThenInclude(c => c.Category);
 
-            if (!string.IsNullOrEmpty(searchValue)) 
+            if (!string.IsNullOrEmpty(searchValue))
                 books = books.Where(b => b.Title.Contains(searchValue) || b.Author!.Name.Contains(searchValue));
 
             books = books.OrderBy($"{sortColumn} {sortColumnDirection}");
@@ -100,7 +97,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create(BookFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -122,7 +119,7 @@ namespace Bookify.Web.Controllers
                     ModelState.AddModelError(nameof(Image), errormessage!);
                     return View("Form", PopulateViewModel(model));
                 }
-               
+
                 //using var straem = model.Image.OpenReadStream();
 
                 //var imageParams = new ImageUploadParams
@@ -163,7 +160,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Edit(BookFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -185,19 +182,19 @@ namespace Bookify.Web.Controllers
 
                 var imageName = $"{Guid.NewGuid()}{Path.GetExtension(model.Image.FileName)}";
 
-                var (uploaded, errormessage) = await _ImageService.UploadAsync(model.Image,imageName, "/images/books", hasThumbnail: true);
-            if (uploaded)
-            {
-                model.ImageUrl = $"/images/books/{imageName}";
-                model.ImageThumbnailUrl = $"/images/books/thumb/{imageName}";
+                var (uploaded, errormessage) = await _ImageService.UploadAsync(model.Image, imageName, "/images/books", hasThumbnail: true);
+                if (uploaded)
+                {
+                    model.ImageUrl = $"/images/books/{imageName}";
+                    model.ImageThumbnailUrl = $"/images/books/thumb/{imageName}";
+                }
+                else
+                {
+                    ModelState.AddModelError(nameof(Image), errormessage!);
+                    return View("Form", PopulateViewModel(model));
+                }
+
             }
-            else
-            {
-                ModelState.AddModelError(nameof(Image), errormessage!);
-                return View("Form", PopulateViewModel(model));
-            }
-            
-        }
 
             else if (!string.IsNullOrEmpty(book.ImageUrl))
             {
@@ -210,11 +207,11 @@ namespace Bookify.Web.Controllers
             book.LastUpdatedOn = DateTime.Now;
 
 
-            if (!model.IsAvailableForRental)           
+            if (!model.IsAvailableForRental)
                 foreach (var item in book.Copies)
-                    item.IsAvailableForRental = false;          
-                          
-                foreach (var category in model.SelectedCategories)
+                    item.IsAvailableForRental = false;
+
+            foreach (var category in model.SelectedCategories)
                 book.Categories.Add(new BookCategory { CategoryId = category });
 
             _context.SaveChanges();
@@ -223,7 +220,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult ToggleStatus(int id)
         {
             var book = _context.Books.Find(id);

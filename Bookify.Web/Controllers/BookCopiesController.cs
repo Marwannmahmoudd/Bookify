@@ -24,8 +24,8 @@ namespace Bookify.Web.Controllers
             if (book is null)
                 return NotFound();
 
-            var viewModel = new BookCopyFormViewModel 
-            { 
+            var viewModel = new BookCopyFormViewModel
+            {
                 BookId = bookId,
                 ShowRentalInput = book.IsAvailableForRental
             };
@@ -34,7 +34,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Create(BookCopyFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -50,7 +50,7 @@ namespace Bookify.Web.Controllers
                 EditionNumber = model.EditionNumber,
                 IsAvailableForRental = book.IsAvailableForRental && model.IsAvailableForRental,
                 CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        };
+            };
 
             book.Copies.Add(copy);
             _context.SaveChanges();
@@ -75,7 +75,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Edit(BookCopyFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -112,7 +112,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult ToggleStatus(int id)
         {
             var copy = _context.BookCopies.Find(id);

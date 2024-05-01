@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Bookify.Web.Helpers
 {
-    public class ApplicationUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser,IdentityRole>
+    public class ApplicationUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>
     {
         public ApplicationUserClaimsPrincipalFactory(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> options) : base(userManager, roleManager, options)
         {
@@ -13,7 +13,7 @@ namespace Bookify.Web.Helpers
         {
             var identity = await base.GenerateClaimsAsync(user);
             identity.AddClaim(new Claim(ClaimTypes.GivenName, user.FullName));
-           return identity;
+            return identity;
         }
     }
 }

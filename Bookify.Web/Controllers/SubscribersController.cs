@@ -1,13 +1,8 @@
-﻿using Bookify.Web.Core.Consts;
-using Bookify.Web.Core.Models;
-using Bookify.Web.Services;
+﻿using Bookify.Web.Services;
 using Hangfire;
-using Humanizer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using static System.Net.WebRequestMethods;
 
 namespace Bookify.Web.Controllers
 {
@@ -16,20 +11,20 @@ namespace Bookify.Web.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IImageService _imageService;
-		private readonly IDataProtector _dataProtector;
-		private readonly IEmailBodyBuilder _emailBodyBuilder;
-		private readonly IEmailSender _emailSender;
+        private readonly IDataProtector _dataProtector;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
+        private readonly IEmailSender _emailSender;
 
-		public SubscribersController(ApplicationDbContext context,IMapper mapper , IImageService imageService ,IDataProtectionProvider dataProtector, IEmailBodyBuilder emailBodyBuilder,
-			IEmailSender emailSender)
+        public SubscribersController(ApplicationDbContext context, IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector, IEmailBodyBuilder emailBodyBuilder,
+            IEmailSender emailSender)
         {
             _context = context;
             this._mapper = mapper;
-			_dataProtector = dataProtector.CreateProtector("MySecureKey");
-			_imageService = imageService;
-			_emailBodyBuilder = emailBodyBuilder;
-			_emailSender = emailSender;
-		}
+            _dataProtector = dataProtector.CreateProtector("MySecureKey");
+            _imageService = imageService;
+            _emailBodyBuilder = emailBodyBuilder;
+            _emailSender = emailSender;
+        }
         public IActionResult Index()
         {
             return View();
@@ -43,13 +38,13 @@ namespace Bookify.Web.Controllers
                 || s.MobileNumber.Equals(model.Value)
                 || s.NationalId.Equals(model.Value));
             var viewmodel = _mapper.Map<SubscriberSearchResultViewModel>(subscriber);
-            if(subscriber is not null)
+            if (subscriber is not null)
                 viewmodel.Key = _dataProtector.Protect(subscriber.Id.ToString());
             return PartialView("_Result", viewmodel);
         }
         public IActionResult Details(string id)
         {
-            var subscriberId = int.Parse( _dataProtector.Unprotect(id));
+            var subscriberId = int.Parse(_dataProtector.Unprotect(id));
             var subscriber = _context.Subscribers
                 .Include(s => s.Governorate)
                 .Include(s => s.Area)
@@ -74,8 +69,8 @@ namespace Bookify.Web.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task< IActionResult> Create(SubscriberFormViewModel model)
+
+        public async Task<IActionResult> Create(SubscriberFormViewModel model)
         {
             if (!ModelState.IsValid)
                 return View("Form", PopulateViewModel(model));
@@ -93,9 +88,9 @@ namespace Bookify.Web.Controllers
                 return View("Form", PopulateViewModel(model));
             }
 
-			subscriber.ImageUrl = $"{imagePath}/{imageName}";
-			subscriber.ImageThumbnailUrl = $"{imagePath}/thumb/{imageName}";
-			subscriber.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            subscriber.ImageUrl = $"{imagePath}/{imageName}";
+            subscriber.ImageThumbnailUrl = $"{imagePath}/thumb/{imageName}";
+            subscriber.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             Subscribtion subscribtion = new()
             {
                 CreatedById = subscriber.CreatedById,
@@ -107,26 +102,26 @@ namespace Bookify.Web.Controllers
             _context.Add(subscriber);
             _context.SaveChanges();
 
-			//TODO: Send welcome email
-			var placeholders = new Dictionary<string, string>()
-			{
-				{ "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
-				{ "header", $"Welcome {model.FirstName}," },
-				{ "body", "thanks for joining Bookify 🤩" }
-			};
-			var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
+            //TODO: Send welcome email
+            var placeholders = new Dictionary<string, string>()
+            {
+                { "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
+                { "header", $"Welcome {model.FirstName}," },
+                { "body", "thanks for joining Bookify 🤩" }
+            };
+            var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 model.Email,
                 "Welcome to Bookify", body));
-			
-			var subscriberId = _dataProtector.Protect(subscriber.Id.ToString());
-			return RedirectToAction(nameof(Index), new { id = subscriberId });
+
+            var subscriberId = _dataProtector.Protect(subscriber.Id.ToString());
+            return RedirectToAction(nameof(Index), new { id = subscriberId });
         }
         [HttpGet]
-     
+
         public IActionResult Edit(string id)
         {
-            var subcriberId = int.Parse(_dataProtector.Unprotect(id)); 
+            var subcriberId = int.Parse(_dataProtector.Unprotect(id));
             var subcriber = _context.Subscribers.Find(subcriberId);
             if (subcriber == null)
                 return NotFound();
@@ -136,16 +131,16 @@ namespace Bookify.Web.Controllers
             return View("Form", viewmodel);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Edit(SubscriberFormViewModel model)
         {
-            if(!ModelState.IsValid)
-                return View("Form",PopulateViewModel(model));
-			var subscriberId = int.Parse(_dataProtector.Unprotect(model.Key));
-			var subscriber = _context.Subscribers.Find(subscriberId);
+            if (!ModelState.IsValid)
+                return View("Form", PopulateViewModel(model));
+            var subscriberId = int.Parse(_dataProtector.Unprotect(model.Key));
+            var subscriber = _context.Subscribers.Find(subscriberId);
             if (subscriber is null)
                 return NotFound();
-            if(model.Image is not null)
+            if (model.Image is not null)
             {
                 if (!string.IsNullOrEmpty(subscriber.ImageUrl))
                     _imageService.Delete(subscriber.ImageUrl, subscriber.ImageThumbnailUrl);
@@ -155,7 +150,7 @@ namespace Bookify.Web.Controllers
                 var imagePath = "/images/Subscribers";
 
                 var (isUploaded, errorMessage) = await _imageService.UploadAsync(model.Image, imageName, imagePath, hasThumbnail: true);
-                if(!isUploaded)
+                if (!isUploaded)
                 {
                     ModelState.AddModelError("image", errorMessage!);
                     return View("Form", PopulateViewModel(model));
@@ -169,19 +164,19 @@ namespace Bookify.Web.Controllers
                 model.ImageUrl = subscriber.ImageUrl;
                 model.ImageThumbnailUrl = subscriber.ImageThumbnailUrl;
             }
-          
+
             subscriber = _mapper.Map(model, subscriber);
             subscriber.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             subscriber.LastUpdatedOn = DateTime.Now;
 
             _context.SaveChanges();
 
-          
+
             return RedirectToAction(nameof(Details), new { id = model.Key });
 
-		}
+        }
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult RenewSubscription(string sKey)
         {
             var subscriberId = int.Parse(_dataProtector.Unprotect(sKey));
@@ -201,27 +196,27 @@ namespace Bookify.Web.Controllers
                 CreatedOn = DateTime.Now,
                 StartDate = startDate,
                 EndDate = startDate.AddYears(1)
-                
+
             };
             subscriber.Subscribtions.Add(newsusbscribtion);
             _context.SaveChanges();
-			//Send email 
-			var placeholders = new Dictionary<string, string>()
-			{
-				{ "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
-				{ "header", $"Hello {subscriber.FirstName}," },
-				{ "body", $"your subscription has been renewed through {newsusbscribtion.EndDate.ToString("d MMM, yyyy")} 🎉🎉" }
-			};
+            //Send email 
+            var placeholders = new Dictionary<string, string>()
+            {
+                { "imageUrl", "https://res.cloudinary.com/dagpvgkuc/image/upload/v1712041807/icon-positive-vote-2_yxomny.png" },
+                { "header", $"Hello {subscriber.FirstName}," },
+                { "body", $"your subscription has been renewed through {newsusbscribtion.EndDate.ToString("d MMM, yyyy")} 🎉🎉" }
+            };
 
-			var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
+            var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 subscriber.Email,
                 "Bookify Subscription Renewal", body));
-			
-			var viewmodel = _mapper.Map<SubscriptionViewModel>(newsusbscribtion);
+
+            var viewmodel = _mapper.Map<SubscriptionViewModel>(newsusbscribtion);
             return PartialView("_SubscriptionRow", viewmodel);
         }
-        public IActionResult GetAreas(int governorateId) 
+        public IActionResult GetAreas(int governorateId)
         {
             var areas = _context.Areas
                    .Where(a => a.GovernorateId == governorateId && !a.IsDeleted)
@@ -268,8 +263,8 @@ namespace Bookify.Web.Controllers
 
             var governorates = _context.Governorates.Where(a => !a.IsDeleted).OrderBy(a => a.Name).ToList();
             viewmodel.Governorates = _mapper.Map<IEnumerable<SelectListItem>>(governorates);
-             
-            if(model?.GovernorateId > 0)
+
+            if (model?.GovernorateId > 0)
             {
                 var areas = _context.Areas
                     .Where(a => a.GovernorateId == model.GovernorateId && !a.IsDeleted)
@@ -278,6 +273,6 @@ namespace Bookify.Web.Controllers
                 viewmodel.Areas = _mapper.Map<IEnumerable<SelectListItem>>(areas);
             }
             return viewmodel;
-        } 
+        }
     }
 }

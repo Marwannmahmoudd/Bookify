@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Bookify.Web.Core.ViewModels
+﻿namespace Bookify.Web.Core.ViewModels
 {
     public class SubscriberSearchResultViewModel
     {

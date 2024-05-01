@@ -1,7 +1,4 @@
-﻿using Bookify.Web.Core.Models;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Bookify.Web.Controllers
+﻿namespace Bookify.Web.Controllers
 {
     [Authorize]
     public class DashboardController : Controller
@@ -9,21 +6,22 @@ namespace Bookify.Web.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-		public DashboardController(ApplicationDbContext context, IMapper mapper)
-		{
-			_context = context;
-			_mapper = mapper;
-		}
-
-
-		public IActionResult Index()
+        public DashboardController(ApplicationDbContext context, IMapper mapper)
         {
+            _context = context;
+            _mapper = mapper;
+        }
+
+
+        public IActionResult Index()
+        {
+
             var numberOfCopies = _context.BookCopies.Count(c => !c.IsDeleted);
             //var numberOfCopies = _context.Books.Count(c => !c.IsDeleted);
 
-			numberOfCopies = numberOfCopies <= 10 ? numberOfCopies : numberOfCopies / 10 * 10;
+            numberOfCopies = numberOfCopies <= 10 ? numberOfCopies : numberOfCopies / 10 * 10;
 
-			var numberOfsubscribers = _context.Subscribers.Count(c => !c.IsDeleted);
+            var numberOfsubscribers = _context.Subscribers.Count(c => !c.IsDeleted);
             var lastAddedBooks = _context.Books
                                 .Include(b => b.Author)
                                 .Where(b => !b.IsDeleted)
@@ -81,8 +79,8 @@ namespace Bookify.Web.Controllers
             var data = _context.RentalCopies
                 .Where(c => c.RentalDate >= startDate && c.RentalDate <= endDate)
                 .GroupBy(c => new { Date = c.RentalDate })
-                .Select(g => new ChartItemViewModel 
-                {  
+                .Select(g => new ChartItemViewModel
+                {
                     Label = g.Key.Date.ToString("d MMM"),
                     Value = g.Count().ToString()
                 })
@@ -108,21 +106,21 @@ namespace Bookify.Web.Controllers
             return Ok(data);
         }
 
-		[AjaxOnly]
-		public IActionResult GetSubscribersPerCity()
-		{
-			var data = _context.Subscribers
+        [AjaxOnly]
+        public IActionResult GetSubscribersPerCity()
+        {
+            var data = _context.Subscribers
                 .Include(s => s.Governorate)
-				.Where(s => !s.IsDeleted)
-				.GroupBy(s => new { GovernorateName = s.Governorate!.Name })
-				.Select(g => new ChartItemViewModel
-				{
-					Label = g.Key.GovernorateName,
-					Value = g.Count().ToString()
-				})
-				.ToList();
+                .Where(s => !s.IsDeleted)
+                .GroupBy(s => new { GovernorateName = s.Governorate!.Name })
+                .Select(g => new ChartItemViewModel
+                {
+                    Label = g.Key.GovernorateName,
+                    Value = g.Count().ToString()
+                })
+                .ToList();
 
-			return Ok(data);
-		}
-	}
+            return Ok(data);
+        }
+    }
 }

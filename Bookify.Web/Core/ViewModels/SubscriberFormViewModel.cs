@@ -1,5 +1,4 @@
-﻿using Bookify.Web.Core.Consts;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using UoN.ExpressiveAnnotations.NetCore.Attributes;
 
 namespace Bookify.Web.Core.ViewModels
@@ -8,8 +7,8 @@ namespace Bookify.Web.Core.ViewModels
     {
         public string? Key { get; set; }
 
-        [MaxLength(100) , Display(Name = "First Name"),
-            RegularExpression(RegexPatterns.DenySpecialCharacters,ErrorMessage =Errors.DenySpecialCharacters)]
+        [MaxLength(100), Display(Name = "First Name"),
+            RegularExpression(RegexPatterns.DenySpecialCharacters, ErrorMessage = Errors.DenySpecialCharacters)]
         public string FirstName { get; set; } = null!;
 
         [MaxLength(100), Display(Name = "Last Name"),
@@ -24,7 +23,7 @@ namespace Bookify.Web.Core.ViewModels
         [MaxLength(14), Display(Name = "National Id"),
   RegularExpression(RegexPatterns.NationalId, ErrorMessage = Errors.InvalidNationalId),
            Remote("AllowNationalId", null!, AdditionalFields = "Key", ErrorMessage = Errors.Duplicated)]
-        public string NationalId { get; set; } = null!; 
+        public string NationalId { get; set; } = null!;
 
 
         [MaxLength(150), EmailAddress,

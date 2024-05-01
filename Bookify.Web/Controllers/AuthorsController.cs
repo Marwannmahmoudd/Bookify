@@ -1,8 +1,6 @@
-﻿using System.Security.Claims;
-
-namespace Bookify.Web.Controllers
+﻿namespace Bookify.Web.Controllers
 {
-    [Authorize(Roles =AppRoles.Archive)]
+    [Authorize(Roles = AppRoles.Archive)]
     public class AuthorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -32,14 +30,14 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Create(AuthorFormViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
             var author = _mapper.Map<Author>(model);
-            author.CreatedById =  User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            author.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             _context.Add(author);
             _context.SaveChanges();
 
@@ -63,7 +61,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult Edit(AuthorFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -86,7 +84,7 @@ namespace Bookify.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public IActionResult ToggleStatus(int id)
         {
             var author = _context.Authors.Find(id);

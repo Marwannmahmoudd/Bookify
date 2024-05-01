@@ -17,7 +17,7 @@
         public string? Address { get; set; }
         public bool IsBlackListed { get; set; }
         public DateTime CreatedOn { get; set; }
-		public IEnumerable<SubscriptionViewModel> Subscribtions { get; set; } = new List<SubscriptionViewModel>();
-		public IEnumerable<RentalViewModel> Rentals { get; set; } = new List<RentalViewModel>();
-	}
+        public IEnumerable<SubscriptionViewModel> Subscribtions { get; set; } = new List<SubscriptionViewModel>();
+        public IEnumerable<RentalViewModel> Rentals { get; set; } = new List<RentalViewModel>();
+    }
 }

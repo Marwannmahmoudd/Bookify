@@ -1,6 +1,4 @@
-﻿using Bookify.Web.Settings;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
@@ -12,7 +10,7 @@ namespace Bookify.Web.Services
         private readonly MailSettings _mailSettings;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public EmailSender(IOptions<MailSettings> mailsetting,IWebHostEnvironment webHostEnvironment)
+        public EmailSender(IOptions<MailSettings> mailsetting, IWebHostEnvironment webHostEnvironment)
         {
             _mailSettings = mailsetting.Value;
             _webHostEnvironment = webHostEnvironment;
@@ -28,7 +26,7 @@ namespace Bookify.Web.Services
                 IsBodyHtml = true
             };
 
-            message.To.Add(_webHostEnvironment.IsDevelopment()? "mwdo49@gmail.com" :  email);
+            message.To.Add(_webHostEnvironment.IsDevelopment() ? "mwdo49@gmail.com" : email);
 
             SmtpClient smtpClient = new(_mailSettings.Host)
             {
